@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>어디있찌 LOST & FOUND - 회원가입</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <div class="content">
+        <div id="register-page" class="page">
+            <header class="form-header">
+                <img class="logo" src="./images/logo.png" alt="어디있찌 LOST & FOUND 로고">
+                <a class="back-button" href="./index.html">뒤로가기</a>
+            </header>
+            <div class="line"></div>
+            <div class="form-container">
+                <h2>회원가입</h2>
+                <form onsubmit="return false;" class="auth-form">
+                    <div class="form-group">
+                        <label for="reg_id">아이디</label>
+                        <input type="text" id="reg_id" name="reg_id" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg_password">비밀번호</label>
+                        <input type="password" id="reg_password" name="reg_password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg_email">이메일</label>
+                        <input type="email" id="reg_email" name="reg_email" required>
+                    </div>
+                    <button type="submit" class="submit-button">가입하기</button>
+                </form>
+                <div class="links">
+                    <a href="./login.html">이미 회원이신가요? (로그인)</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.querySelector('.submit-button').addEventListener('click', async () => {
+            const id = document.getElementById('reg_id').value;
+            const pw = document.getElementById('reg_password').value;
+            const email = document.getElementById('reg_email').value;
+
+            if(!id || !pw) {
+                alert("정보를 모두 입력해주세요.");
+                return;
+            }
+
+            try {
+                const res = await fetch('http://127.0.0.1:5000/api/register', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_id: id, password: pw, email: email })
+                });
+
+                if (res.ok) {
+                    alert('가입 성공! 로그인해주세요.');
+                    window.location.href = './login.html';
+                } else {
+                    alert('이미 존재하는 아이디입니다.');
+                }
+            } catch (e) {
+                alert('서버 연결 실패! (app.py가 켜져있나요?)');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>어디있찌 LOST & FOUND - 로그인</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <div class="content">
+        <div id="login-page" class="page">
+            <header class="form-header">
+                <img class="logo" src="./images/logo.png" alt="어디있찌 LOST & FOUND 로고">
+                <a class="back-button" href="./index.html">뒤로가기</a> 
+            </header>
+            <div class="line"></div>
+            <div class="form-container">
+                <h2>로그인</h2>
+                <form onsubmit="return false;" class="auth-form">
+                    <div class="form-group">
+                        <label for="user_id">아이디</label>
+                        <input type="text" id="user_id" name="user_id" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">비밀번호</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="submit-button">로그인</button>
+                </form>
+                <div class="links">
+                    <a href="./register.html">아직 회원이 아니신가요? (회원가입)</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.querySelector('.submit-button').addEventListener('click', async () => {
+            const id = document.getElementById('user_id').value;
+            const pw = document.getElementById('password').value;
+
+            if(!id || !pw) {
+                alert("아이디와 비밀번호를 입력해주세요.");
+                return;
+            }
+
+            try {
+                const res = await fetch('http://127.0.0.1:5000/api/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_id: id, password: pw })
+                });
+
+                if (res.ok) {
+                    // ★ 변경된 부분: 브라우저에 아이디 저장 (기록 남기기)
+                    localStorage.setItem('user_id', id); 
+                    
+                    alert('로그인 성공!');
+                    window.location.href = './index.html';
+                } else {
+                    alert('아이디 또는 비밀번호가 일치하지 않습니다.');
+                }
+            } catch (e) {
+                alert('서버 연결 실패! (LOST.py가 켜져있는지 확인해주세요)');
+            }
+        });
+    </script>
+</body>
+</html>
