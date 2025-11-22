@@ -30,7 +30,7 @@
                             <label for="query_content">문의 내용</label>
                             <textarea id="query_content" name="query_content" rows="10" placeholder="상세한 문의 내용을 입력해 주세요." required></textarea>
                         </div>
-                        <button type="submit" class="submit-button">문의 제출하기</button>
+                        <button type="submit" class="submit-button" onclick="sendQuery()">문의 제출하기</button>
                     </form>
                 </div>
             </div>
@@ -38,16 +38,27 @@
     </div>
 
     <script>
-        document.querySelector('.submit-button').addEventListener('click', async () => {
+        async function sendQuery() {
+            // 1. [추가됨] 로그인 체크 (수문장)
+            const userId = localStorage.getItem('user_id');
+            if (!userId) {
+                alert('로그인이 필요한 서비스입니다.\n먼저 로그인 해주세요!');
+                window.location.href = './login.html'; // 로그인 페이지로 이동
+                return;
+            }
+
+            // 2. 입력값 가져오기
             const title = document.getElementById('query_title').value;
             const email = document.getElementById('query_email').value;
             const content = document.getElementById('query_content').value;
 
-            if(!title || !content) {
-                alert("내용을 입력해주세요.");
+            // 3. 필수 입력 확인
+            if(!title || !content || !email) {
+                alert("모든 내용을 입력해주세요.");
                 return;
             }
 
+            // 4. 서버 전송
             try {
                 const res = await fetch('http://127.0.0.1:5000/api/query', {
                     method: 'POST',
@@ -64,7 +75,7 @@
             } catch (e) {
                 alert('서버 연결 실패!');
             }
-        });
+        }
     </script>
 </body>
 </html>

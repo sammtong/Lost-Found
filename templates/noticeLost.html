@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>분실물 상세보기</title>
-<link rel="stylesheet" href="../static/css/Notice_LostFound.css">
+  <link rel="stylesheet" href="../static/css/Notice_LostFound.css">
 </head>
 <body>
   <div class="container">
@@ -19,6 +19,11 @@
     </div>
 
     <div class="info-box">
+      <div class="info-title">날짜</div>
+      <div class="info-text" id="date">-</div>
+    </div>
+
+    <div class="info-box">
       <div class="info-title">장소</div>
       <div class="info-text" id="place">-</div>
     </div>
@@ -28,9 +33,45 @@
       <div class="info-text" id="content">-</div>
     </div>
 
-    <a href="javascript:window.history.back()" class="back">← 목록으로 돌아가기</a>
+    <a href="./index.html" class="back">← 목록으로 돌아가기</a>
   </div>
 
-  
+  <script>
+      async function loadDetail() {
+          // 1. 주소창에서 ?id=번호 가져오기
+          const params = new URLSearchParams(window.location.search);
+          const id = params.get('id');
+
+          if (id === null) {
+              alert("잘못된 접근입니다.");
+              window.location.href = './index.html';
+              return;
+          }
+
+          try {
+              // 2. 백엔드에 데이터 요청 (Lost API)
+              const res = await fetch(`http://127.0.0.1:5000/api/lost/${id}`);
+              
+              if (res.ok) {
+                  const data = await res.json();
+                  // 3. 화면에 데이터 채우기
+                  document.getElementById('title').innerText = data.title;
+                  document.getElementById('item').innerText = data.item_name;
+                  document.getElementById('date').innerText = data.date || '-';
+                  document.getElementById('place').innerText = data.place;
+                  document.getElementById('content').innerText = data.content;
+                  document.getElementById('photo').innerText = "사진 없음"; // 사진 기능은 추후 구현
+              } else {
+                  alert("삭제되었거나 없는 게시글입니다.");
+                  window.location.href = './index.html';
+              }
+          } catch (e) {
+              console.error(e);
+              alert("서버 연결 실패");
+          }
+      }
+
+      window.onload = loadDetail;
+  </script>
 </body>
 </html>

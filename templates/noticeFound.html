@@ -3,34 +3,67 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>분실물 상세보기</title>
- <link rel="stylesheet" href="../static/css/Notice_LostFound.css">
+  <title>습득물 상세보기</title>
+  <link rel="stylesheet" href="../static/css/Notice_LostFound.css">
 </head>
 <body>
   <div class="container">
-    <h1 id="title">지하철에서 에어팟을 주웠습니다.</h1>
+    <h1 id="title">제목 불러오는 중...</h1>
     <div class="meta" id="meta"></div>
 
     <div class="photo" id="photo">사진 불러오는 중...</div>
 
     <div class="info-box">
       <div class="info-title">물품명</div>
-      <div class="info-text" id="item">에어팟 프로2</div>
+      <div class="info-text" id="item">-</div>
     </div>
 
     <div class="info-box">
-      <div class="info-title">장소</div>
-      <div class="info-text" id="place">두정역</div>
+      <div class="info-title">습득 장소</div>
+      <div class="info-text" id="place">-</div>
     </div>
 
     <div class="info-box">
-      <div class="info-title">설명 / 특이사항</div>
-      <div class="info-text" id="content">흰색 에어팟 프로2입니다.</div>
+      <div class="info-title">내용 / 보관 장소</div>
+      <div class="info-text" id="content">-</div>
     </div>
 
-    <a href="javascript:window.history.back()" class="back">← 목록으로 돌아가기</a>
+    <a href="./index.html" class="back">← 목록으로 돌아가기</a>
   </div>
 
-  
+  <script>
+      async function loadDetail() {
+          const params = new URLSearchParams(window.location.search);
+          const id = params.get('id');
+
+          if (id === null) {
+              alert("잘못된 접근입니다.");
+              window.location.href = './index.html';
+              return;
+          }
+
+          try {
+              // Found API 호출
+              const res = await fetch(`http://127.0.0.1:5000/api/found/${id}`);
+              
+              if (res.ok) {
+                  const data = await res.json();
+                  document.getElementById('title').innerText = data.title;
+                  document.getElementById('item').innerText = data.item_name;
+                  document.getElementById('place').innerText = data.place;
+                  document.getElementById('content').innerText = data.content;
+                  document.getElementById('photo').innerText = "사진 없음";
+              } else {
+                  alert("삭제되었거나 없는 게시글입니다.");
+                  window.location.href = './index.html';
+              }
+          } catch (e) {
+              console.error(e);
+              alert("서버 연결 실패");
+          }
+      }
+
+      window.onload = loadDetail;
+  </script>
 </body>
 </html>
