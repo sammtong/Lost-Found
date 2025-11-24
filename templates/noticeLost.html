@@ -7,7 +7,8 @@
   <link rel="stylesheet" href="../static/css/Notice_LostFound.css">
 </head>
 <body>
-  <!-- 이미지 확대 모달 -->
+
+<!-- 이미지 확대 모달 -->
 <div id="imgModal" class="img-modal">
   <span class="img-modal-close">&times;</span>
   <img class="img-modal-content" id="modalImg">
@@ -50,24 +51,23 @@
     <a href="./index.html" class="back">← 목록으로 돌아가기</a>
   </div>
 
- <script>
-      async function loadDetail() {
+<script>
+async function loadDetail() {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
 
-    if (id === null) {
+    if (!id) {
         alert("잘못된 접근입니다.");
         window.location.href = './index.html';
         return;
     }
 
     try {
-        const res = await fetch(`http://127.0.0.1:5000/api/found/${id}`);
+        const res = await fetch(`http://127.0.0.1:5000/api/lost/${id}`);
 
         if (res.ok) {
             const data = await res.json();
 
-            // 기본 정보 채우기
             document.getElementById('title').innerText = data.title;
             document.getElementById('author').innerText = data.author || '익명';
             document.getElementById('item').innerText = data.item_name;
@@ -76,26 +76,21 @@
             document.getElementById('phone').innerText = data.phone || '비공개';
             document.getElementById('content').innerText = data.content;
 
-            // ⬇️ 사진 표시 + 클릭 확대 기능
             if (data.image) {
-                document.getElementById('photo').innerHTML = 
-                    `<img id="detailImg" src="../static/uploads/${data.image}" 
-                          style="max-width:100%; border-radius:8px; cursor:pointer;">`;
-
+                document.getElementById('photo').innerHTML =
+                    `<img id="detailImg" src="../static/uploads/${data.image}"
+                      style="max-width:100%; border-radius:8px; cursor:pointer;">`;
                 setupImageModal();
             }
         } else {
             alert("삭제되었거나 없는 게시글입니다.");
             window.location.href = './index.html';
         }
-    } catch (e) {
-        console.error(e);
+    } catch (error) {
         alert("서버 연결 실패");
     }
 }
 
-
-// 📌 이미지 클릭 시 모달(전체 화면 확대) 기능
 function setupImageModal() {
     const modal = document.getElementById("imgModal");
     const modalImg = document.getElementById("modalImg");
@@ -104,28 +99,21 @@ function setupImageModal() {
 
     if (!detailImg) return;
 
-    // 이미지 클릭 → 모달 열림
     detailImg.onclick = () => {
         modal.style.display = "block";
         modalImg.src = detailImg.src;
     };
 
-    // 닫기 버튼(X)
     closeBtn.onclick = () => {
         modal.style.display = "none";
     };
 
-    // 모달 배경 클릭 → 닫기
     modal.onclick = (e) => {
-        if (e.target === modal) {
-            modal.style.display = "none";
-        }
+        if (e.target === modal) modal.style.display = "none";
     };
 }
 
-
 window.onload = loadDetail;
-
 </script>
 
 </body>
