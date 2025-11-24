@@ -14,7 +14,7 @@
 
     <div class="form-group">
         <label>물품 사진</label>
-        <input type="file" accept="image/*" />
+        <input type="file" id="fileInput" accept="image/*" />
     </div>
 
     <div class="form-group">
@@ -23,31 +23,30 @@
     </div>
 
     <div class="form-group">
-        <label>공지 제목</label>
-        <input type="text" id="title" placeholder="게시글 제목을 입력하세요" />
+        <label>날짜/시간</label>
+        <input type="text" id="date" placeholder="예: 11/17, 19시경" />
     </div>
 
     <div class="form-group">
-        <label>날짜</label>
-        <input type="text" id="date" placeholder="예: 2025-11-17" />
-    </div>
-
-    <div class="form-group">
-        <label>장소</label>
+        <label>분실 장소</label>
         <input type="text" id="place" placeholder="예: 공학관 1층" />
     </div>
 
     <div class="form-group">
-        <label>내용 및 특이사항</label>
-        <textarea id="content" placeholder="비공개로 저장됩니다. 자세한 내용을 적어주세요."></textarea>
+        <label>전화번호</label>
+        <input type="text" id="phone" placeholder="-은 빼주세요" />
     </div>
 
-    <button class="submit-btn" onclick="submitLost()">등록하기</button>
+    <div class="form-group">
+        <label>세부 사항</label>
+        <textarea id="content" placeholder="자세한 내용을 적어주세요."></textarea>
+    </div>
+
+    <button class="submit-btn" type="button" onclick="submitLost()">등록하기</button>
 </div>
 
 <script>
     async function submitLost() {
-        // 1. 로그인 체크 (수문장)
         const userId = localStorage.getItem('user_id');
         if (!userId) {
             alert('로그인이 필요한 서비스입니다.\n먼저 로그인 해주세요!');
@@ -55,32 +54,38 @@
             return;
         }
 
-        // 2. 데이터 수집
-        const data = {
-            item_name: document.getElementById('item_name').value,
-            title: document.getElementById('title').value,
-            date: document.getElementById('date').value,
-            place: document.getElementById('place').value,
-            content: document.getElementById('content').value
-        };
+        const item_name = document.getElementById('item_name').value;
 
-        // 3. 필수값 확인
-        if(!data.title || !data.item_name) {
-            alert('물품명과 제목은 필수입니다.');
+        if(!item_name) {
+            alert('물품명은 필수입니다.');
             return;
         }
 
-        // 4. 서버 전송
+        const formData = new FormData();
+        formData.append('item_name', item_name);
+        // [중요] 백엔드 필수값인 title을 item_name으로 대체
+        formData.append('title', item_name); 
+        formData.append('date', document.getElementById('date').value);
+        formData.append('place', document.getElementById('place').value);
+        formData.append('phone', document.getElementById('phone').value);
+        formData.append('content', document.getElementById('content').value);
+        formData.append('author', userId);
+
+        const fileInput = document.getElementById('fileInput');
+        if (fileInput.files[0]) {
+            formData.append('image', fileInput.files[0]);
+        }
+
         try {
             const res = await fetch('http://127.0.0.1:5000/api/lost', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data)
+                body: formData
             });
 
             if(res.ok) {
                 alert('분실물이 등록되었습니다!');
-                window.location.href = './index.html';
+                // [수정됨] 홈 화면 이동 코드 삭제 (현재 페이지 유지)
+                // window.location.href = '/'; 
             } else {
                 alert('등록 실패');
             }
