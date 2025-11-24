@@ -8,6 +8,12 @@
 </head>
 <body>
   <div class="container">
+    <!-- 이미지 확대 모달 -->
+<div id="imgModal" class="img-modal">
+  <span class="img-modal-close">&times;</span>
+  <img class="img-modal-content" id="modalImg">
+</div>
+
     <h1 id="title">제목 불러오는 중...</h1>
     <div class="meta" id="meta"></div>
 
@@ -53,39 +59,68 @@
     <a href="./index.html" class="back">← 목록으로 돌아가기</a>
   </div>
 
-  <script>
-      async function loadDetail() {
-          const params = new URLSearchParams(window.location.search);
-          const id = params.get('id');
+<script>
+    async function loadDetail() {
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
 
-          if (id === null) {
-              alert("잘못된 접근입니다.");
-              window.location.href = './index.html';
-              return;
-          }
+        if (id === null) {
+            alert("잘못된 접근입니다.");
+            window.location.href = './index.html';
+            return;
+        }
 
-          try {
-              // Found API 호출
-              const res = await fetch(`http://127.0.0.1:5000/api/found/${id}`);
-              
-              if (res.ok) {
-                  const data = await res.json();
-                  document.getElementById('title').innerText = data.title;
-                  document.getElementById('item').innerText = data.item_name;
-                  document.getElementById('place').innerText = data.place;
-                  document.getElementById('content').innerText = data.content;
-                  document.getElementById('photo').innerText = "사진 없음";
-              } else {
-                  alert("삭제되었거나 없는 게시글입니다.");
-                  window.location.href = './index.html';
-              }
-          } catch (e) {
-              console.error(e);
-              alert("서버 연결 실패");
-          }
-      }
+        try {
+            const res = await fetch(`http://127.0.0.1:5000/api/found/${id}`);
+            
+            if (res.ok) {
+                const data = await res.json();
+                document.getElementById('title').innerText = data.title;
+                document.getElementById('item').innerText = data.item_name;
+                document.getElementById('place').innerText = data.place;
+                document.getElementById('content').innerText = data.content;
 
-      window.onload = loadDetail;
-  </script>
+                const photoDiv = document.getElementById('photo');
+
+                if (data.photo_url) {
+                    photoDiv.innerHTML = `<img src="${data.photo_url}" id="detailImg" style="width:200px;cursor:pointer;border-radius:10px;">`;
+
+                    // 사진 클릭 이벤트 (모달 열기)
+                    const modal = document.getElementById("imgModal");
+                    const modalImg = document.getElementById("modalImg");
+                    const detailImg = document.getElementById("detailImg");
+                    const closeBtn = document.querySelector(".img-modal-close");
+
+                    detailImg.onclick = () => {
+                        modal.style.display = "block";
+                        modalImg.src = detailImg.src;
+                    };
+
+                    closeBtn.onclick = () => {
+                        modal.style.display = "none";
+                    };
+
+                    // 모달 배경 클릭 시 닫기
+                    modal.onclick = (e) => {
+                        if (e.target === modal) modal.style.display = "none";
+                    };
+
+                } else {
+                    photoDiv.innerText = "사진 없음";
+                }
+
+            } else {
+                alert("삭제되었거나 없는 게시글입니다.");
+                window.location.href = './index.html';
+            }
+        } catch (e) {
+            console.error(e);
+            alert("서버 연결 실패");
+        }
+    }
+
+    window.onload = loadDetail;
+</script>
+
 </body>
 </html>
