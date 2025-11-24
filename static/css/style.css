@@ -1,3 +1,4 @@
+/* 1. 기본 스타일 초기화 및 유틸리티 */
 * {
     margin: 0;
     padding: 0;
@@ -34,6 +35,7 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
 }
 
+/* 3. 헤더 및 구분선 */
 header, .form-header {
     display: flex;
     justify-content: space-between;
@@ -69,6 +71,7 @@ header a:hover {
     margin-bottom: 30px;
 }
 
+/* 4. 페이지 전환 및 공통 구조 */
 .page {
     height: 100%;
     display: flex;
@@ -84,13 +87,16 @@ header a:hover {
     width: 100%;
 }
 
+/* 5. 메인 페이지 섹션 스타일 */
+
 .service-boxes {
     justify-content: center;
     gap: 30px;
     padding: 20px 0;
     max-width: 1000px;
     width: 100%;
-    margin: 0 auto 50px auto;
+    /* [수정됨] 아래 여백을 50px -> 10px로 줄여서 목록을 위로 올림 */
+    margin: 0 auto 10px auto;
 }
 
 .service-item {
@@ -122,13 +128,15 @@ header a:hover {
 .service-item.query { background-color: #ffc107; color: #333; }
 .service-item.help { background-color: #adb5bd; color: #333; }
 
+/* 2개 목록 컨테이너 (습득물/분실물) */
 .two_items_container {
     flex-grow: 1;
     width: 100%;
     max-width: 1000px;
-    margin: 0 auto;
+    margin: 12px auto 0 auto; /* ⬅ 위쪽 여백 아주 살짝 추가 */
     display: flex;
     flex-direction: column;
+    padding-top: 0;
 }
 
 .two_items {
@@ -136,6 +144,8 @@ header a:hover {
     gap: 50px;
     flex-grow: 1;
     width: 100%;
+    /* [수정됨] 위쪽 정렬로 변경하여 빈 공간 제거 */
+    align-items: flex-start;
 }
 
 .find, .found {
@@ -147,6 +157,7 @@ header a:hover {
     height: 400px;
     display: flex;
     flex-direction: column;
+    background-color: #fff;
 }
 
 .find > p, .found > p {
@@ -156,6 +167,7 @@ header a:hover {
     font-size: 20px;
     text-align: center;
     line-height: 40px;
+    margin: 0;
 }
 
 .find > ul, .found > ul {
@@ -176,8 +188,11 @@ header a:hover {
 
 .find > ul li a:hover, .found > ul li a:hover {
     background-color: #f9f9f9;
+    color: #2d6bba;
+    font-weight: bold;
 }
 
+/* 6. 폼 공통 스타일 */
 .back-button {
     background: none;
     border: 1px solid #ccc;
@@ -265,6 +280,7 @@ header a:hover {
     display: inline-block;
 }
 
+/* 7. 도움말 컨테이너 */
 .guide-container {
     max-width: 800px;
     width: 100%;
