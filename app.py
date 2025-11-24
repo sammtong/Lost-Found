@@ -1,8 +1,17 @@
+import os
+import datetime
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 CORS(app)
+
+# 사진 저장 경로 설정
+UPLOAD_FOLDER = 'static/uploads'
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # 임시 데이터베이스
 users = {}
@@ -10,88 +19,128 @@ lost_items = []
 found_items = []
 queries = []
 
-# ==========================================
-#  [1] API 영역 (데이터 처리 - 기존 기능)
-# ==========================================
-
+# --- 인증 API ---
 @app.route('/api/register', methods=['POST'])
 def register():
     data = request.get_json()
-    user_id = data.get('user_id')
-    password = data.get('password')
-    email = data.get('email')
-    
-    if user_id in users:
-        return jsonify({"message": "이미 존재하는 아이디입니다."}), 400
-    
-    users[user_id] = password
-    print(f"회원가입 완료: {user_id}")
-    return jsonify({"message": "회원가입 성공"}), 200
+    if data.get('user_id') in users:
+        return jsonify({"message": "ID 중복"}), 400
+    users[data.get('user_id')] = data.get('password')
+    return jsonify({"message": "가입 성공"}), 200
 
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.get_json()
-    user_id = data.get('user_id')
-    password = data.get('password')
-    
-    if user_id in users and users[user_id] == password:
-        print(f"로그인 성공: {user_id}")
-        return jsonify({"message": "로그인 성공"}), 200
-    else:
-        print(f"로그인 실패 시도: {user_id}")
-        return jsonify({"message": "아이디 또는 비밀번호 오류"}), 401
+    if users.get(data.get('user_id')) == data.get('password'):
+        return jsonify({"message": "성공"}), 200
+    return jsonify({"message": "실패"}), 401
 
+# --- 분실물 관리 ---
 @app.route('/api/lost', methods=['GET', 'POST'])
 def lost_manage():
-    if request.method == 'POST':
-        data = request.get_json()
-        lost_items.append(data)
-        return jsonify({"message": "분실물 등록 성공"}), 200
-    return jsonify(lost_items), 200
+    if request.method == 'GET':
+        keyword = request.args.get('q', '').lower()
+        results = []
+        for idx, item in enumerate(lost_items):
+            if not item: continue
+            # 제목(title) 대신 물품명(item_name)으로 검색
+            if not keyword or (keyword in item.get('item_name', '').lower()):
+                item_with_id = item.copy()
+                item_with_id['id'] = idx
+                results.append(item_with_id)
+        return jsonify(results), 200
 
+    if request.method == 'POST':
+        image_filename = None
+        if 'image' in request.files:
+            file = request.files['image']
+            if file.filename != '':
+                filename = secure_filename(file.filename)
+                new_filename = f"{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}_{filename}"
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], new_filename))
+                image_filename = new_filename
+        
+        # [수정] title 입력이 없으므로 item_name을 title로 사용
+        item_name = request.form.get('item_name')
+        
+        new_item = {
+            'title': item_name,  # 제목 대신 물품명 사용
+            'item_name': item_name,
+            'date': request.form.get('date'),
+            'place': request.form.get('place'),
+            'phone': request.form.get('phone'),
+            'content': request.form.get('content'),
+            'author': request.form.get('author'),
+            'image': image_filename,
+            'is_solved': False
+        }
+        lost_items.append(new_item)
+        return jsonify({"message": "등록 성공"}), 200
+
+# --- 습득물 관리 ---
 @app.route('/api/found', methods=['GET', 'POST'])
 def found_manage():
-    if request.method == 'POST':
-        data = request.get_json()
-        found_items.append(data)
-        return jsonify({"message": "습득물 등록 성공"}), 200
-    return jsonify(found_items), 200
+    if request.method == 'GET':
+        keyword = request.args.get('q', '').lower()
+        results = []
+        for idx, item in enumerate(found_items):
+            if not item: continue
+            if not keyword or (keyword in item.get('item_name', '').lower()):
+                item_with_id = item.copy()
+                item_with_id['id'] = idx
+                results.append(item_with_id)
+        return jsonify(results), 200
 
-@app.route('/api/query', methods=['POST'])
-def query_manage():
-    data = request.get_json()
-    queries.append(data)
-    print(f"문의 접수: {data}")
-    return jsonify({"message": "문의가 등록되었습니다."}), 200
+    if request.method == 'POST':
+        image_filename = None
+        if 'image' in request.files:
+            file = request.files['image']
+            if file.filename != '':
+                filename = secure_filename(file.filename)
+                new_filename = f"{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}_{filename}"
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], new_filename))
+                image_filename = new_filename
+
+        # [수정] title 입력이 없으므로 item_name을 title로 사용
+        item_name = request.form.get('item_name')
+
+        new_item = {
+            'title': item_name, # 제목 대신 물품명 사용
+            'item_name': item_name,
+            'date': request.form.get('date'),
+            'place': request.form.get('place'),
+            'phone': request.form.get('phone'),
+            'content': request.form.get('content'),
+            'author': request.form.get('author'),
+            'image': image_filename,
+            'is_solved': False
+        }
+        found_items.append(new_item)
+        return jsonify({"message": "등록 성공"}), 200
 
 @app.route('/api/lost/<int:index>', methods=['GET'])
 def get_lost_detail(index):
-    if 0 <= index < len(lost_items):
+    if 0 <= index < len(lost_items) and lost_items[index]:
         return jsonify(lost_items[index]), 200
-    return jsonify({"message": "찾을 수 없습니다."}), 404
+    return jsonify({"message": "없음"}), 404
 
 @app.route('/api/found/<int:index>', methods=['GET'])
 def get_found_detail(index):
-    if 0 <= index < len(found_items):
+    if 0 <= index < len(found_items) and found_items[index]:
         return jsonify(found_items[index]), 200
-    return jsonify({"message": "찾을 수 없습니다."}), 404
+    return jsonify({"message": "없음"}), 404
 
+@app.route('/api/query', methods=['POST'])
+def query_manage():
+    queries.append(request.get_json())
+    return jsonify({"message": "성공"}), 200
 
-# ==========================================
-#  [2] 페이지 영역 (HTML 서빙 - 새로 추가됨!)
-# ==========================================
-
-# 메인 페이지 접속 시 (http://127.0.0.1:5000/)
 @app.route('/')
-def home():
-    return render_template('index.html')
+def home(): return render_template('index.html')
 
-# 다른 모든 HTML 파일 접속 시 (예: /login.html, /report_lost.html 등)
 @app.route('/<path:filename>')
-def serve_html(filename):
-    return render_template(filename)
-
+def serve_html(filename): return render_template(filename)
 
 if __name__ == '__main__':
-    print("🚀 서버가 시작되었습니다! http://127.0.0.1:5000")
+    print("🚀 서버 실행: http://127.0.0.1:5000")
     app.run(debug=True, port=5000)

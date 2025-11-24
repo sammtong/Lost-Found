@@ -8,10 +8,10 @@
 </head>
 <body>
   <div class="container">
-    <h1 id="title">제목 불러오는 중...</h1>
-    <div class="meta" id="meta"></div>
+    <h1 id="title">물품명 불러오는 중...</h1>
+    <div class="meta">작성자: <span id="author">-</span></div>
 
-    <div class="photo" id="photo">사진 불러오는 중...</div>
+    <div class="photo" id="photo">사진 없음</div>
 
    <div class="notice_wrapper">
 
@@ -43,6 +43,32 @@
     <div class="info-box">
       <div class="info-title">세부 사항</div>
       <div class="info-text" id="content">-</div>
+    <div class="notice_wrapper">
+      <div class="left_box">
+        <div class="info-box">
+          <div class="info-title">물품명</div>
+          <div class="info-text" id="item">-</div>
+        </div>
+        <div class="info-box">
+          <div class="info-title">날짜/시간</div>
+          <div class="info-text" id="date">-</div>
+        </div>
+        <div class="info-box">
+          <div class="info-title">분실 장소</div>
+          <div class="info-text" id="place">-</div>
+        </div>
+      </div>
+
+      <div class="right_box">
+        <div class="info-box">
+          <div class="info-title">전화번호</div>
+          <div class="info-text" id="phone">-</div>
+        </div>
+        <div class="info-box">
+          <div class="info-title">세부 사항</div>
+          <div class="info-text" id="content">-</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -53,7 +79,6 @@
 
   <script>
       async function loadDetail() {
-          // 1. 주소창에서 ?id=번호 가져오기
           const params = new URLSearchParams(window.location.search);
           const id = params.get('id');
 
@@ -64,18 +89,24 @@
           }
 
           try {
-              // 2. 백엔드에 데이터 요청 (Lost API)
               const res = await fetch(`http://127.0.0.1:5000/api/lost/${id}`);
               
               if (res.ok) {
                   const data = await res.json();
-                  // 3. 화면에 데이터 채우기
-                  document.getElementById('title').innerText = data.title;
+                  
+                  // 데이터 채우기
+                  document.getElementById('title').innerText = data.title; // 백엔드에서 item_name을 title로 저장했음
+                  document.getElementById('author').innerText = data.author || '익명';
                   document.getElementById('item').innerText = data.item_name;
                   document.getElementById('date').innerText = data.date || '-';
                   document.getElementById('place').innerText = data.place;
+                  document.getElementById('phone').innerText = data.phone || '비공개';
                   document.getElementById('content').innerText = data.content;
-                  document.getElementById('photo').innerText = "사진 없음"; // 사진 기능은 추후 구현
+
+                  // 사진 표시
+                  if (data.image) {
+                      document.getElementById('photo').innerHTML = `<img src="../static/uploads/${data.image}" style="max-width:100%; border-radius:8px;">`;
+                  }
               } else {
                   alert("삭제되었거나 없는 게시글입니다.");
                   window.location.href = './index.html';

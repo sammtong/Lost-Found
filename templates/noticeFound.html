@@ -16,8 +16,10 @@
 
     <h1 id="title">제목 불러오는 중...</h1>
     <div class="meta" id="meta"></div>
+    <h1 id="title">물품명 불러오는 중...</h1>
+    <div class="meta">작성자: <span id="author">-</span></div>
 
-    <div class="photo" id="photo">사진 불러오는 중...</div>
+    <div class="photo" id="photo">사진 없음</div>
 
       <div class="notice_wrapper">
 
@@ -49,6 +51,32 @@
     <div class="info-box">
       <div class="info-title">세부 사항</div>
       <div class="info-text" id="content">-</div>
+    <div class="notice_wrapper">
+      <div class="left_box">
+        <div class="info-box">
+          <div class="info-title">물품명</div>
+          <div class="info-text" id="item">-</div>
+        </div>
+        <div class="info-box">
+          <div class="info-title">날짜/시간</div>
+          <div class="info-text" id="date">-</div>
+        </div>
+        <div class="info-box">
+          <div class="info-title">습득 장소</div>
+          <div class="info-text" id="place">-</div>
+        </div>
+      </div>
+
+      <div class="right_box">
+        <div class="info-box">
+          <div class="info-title">전화번호</div>
+          <div class="info-text" id="phone">-</div>
+        </div>
+        <div class="info-box">
+          <div class="info-title">세부 사항</div>
+          <div class="info-text" id="content">-</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -121,6 +149,7 @@
 
     window.onload = loadDetail;
 </script>
+   
 
 </body>
 </html>
