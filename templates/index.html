@@ -76,7 +76,7 @@
                 
                 if (foundData.length > 0) {
                     foundList.innerHTML = foundData.map((item, index) => 
-                        `<li><a href="./noticeFound.html?id=${index}">[${item.place}] ${item.item_name}</a></li>`
+                        `<li><a href="./notice_found.html?id=${index}">[${item.place}] ${item.item_name}</a></li>`
                     ).join('');
                 } else {
                     foundList.innerHTML = '<li style="color:#999;">등록된 습득물이 없습니다.</li>';
@@ -96,7 +96,7 @@
 
                 if (lostData.length > 0) {
                     lostList.innerHTML = lostData.map((item, index) => 
-                        `<li><a href="./noticeLost.html?id=${index}">[${item.place}] ${item.item_name}</a></li>`
+                        `<li><a href="./notice_lost.html?id=${index}">[${item.place}] ${item.item_name}</a></li>`
                     ).join('');
                 } else {
                     lostList.innerHTML = '<li style="color:#999;">등록된 분실물이 없습니다.</li>';
